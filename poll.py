@@ -1,6 +1,10 @@
 import pandas as pd
 import numpy as np
+import streamlit as st
 from sklearn.linear_model import LinearRegression
+
+#another_set1=pd.read_csv('2012-general-election-romney-vs-obama.csv')
+#another_set2=pd.read_csv('presidential_polls_2020.csv')
 
 full_training=pd.read_csv('2016_sorted_polls.csv')
 full_training=full_training.drop(columns=["cycle"])
@@ -37,3 +41,7 @@ training_target=full_training["rawpoll_trump"]
 reg = LinearRegression(fit_intercept=True, normalize=False)
 reg.fit(full_training, training_target)
 print(reg.score(full_training, training_target))
+
+st.write(full_training)
+st.write('reg score = ', reg.score(full_training, training_target))
+
