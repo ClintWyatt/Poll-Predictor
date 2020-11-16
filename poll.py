@@ -1,7 +1,11 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression,LogisticRegression,Perceptron
+import math
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 #another_set1=pd.read_csv('2012-general-election-romney-vs-obama.csv')
 #another_set2=pd.read_csv('presidential_polls_2020.csv')
@@ -53,4 +57,11 @@ print(reg.score(full_training, training_target))
 print(full_training)
 st.write(full_training)
 st.write('reg score = ', reg.score(full_training, training_target))
+
+clf=LogisticRegression()
+clf.fit(full_training[["actual_trump"]], full_training[["pred_trump"]])
+
+x1 = np.linspace(4.5, 8.5, 1000).reshape(-1, 1)
+y1=clf.predict_proba(x1)[:,1]
+
 
