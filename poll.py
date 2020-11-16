@@ -32,16 +32,25 @@ full_training=full_training.drop(columns=["poll_id"])
 full_training=full_training.drop(columns=["question_id"])
 full_training=full_training.drop(columns=["createddate"])
 full_training=full_training.drop(columns=["timestamp"])
+#full_training=full_training.drop(columns=["pred_trump"])
+#full_training=full_training.drop(columns=["pred_clinton"])
+
+#print(full_training)
 
 
-print(full_training)
+full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinton"], "pred_trump"] = 0.0
+full_training.loc[full_training["rawpoll_trump"] > full_training["rawpoll_clinton"], "pred_trump"] = 1.0
+full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinton"], "pred_clinton"] = 1.0
+full_training.loc[full_training["rawpoll_trump"] > full_training["rawpoll_clinton"], "pred_clinton"] = 0.0
+full_training.loc[full_training["rawpoll_trump"] == full_training["rawpoll_clinton"], "pred_clinton"] = 0.0
+full_training.loc[full_training["rawpoll_trump"] == full_training["rawpoll_clinton"], "pred_trump"] = 0.0
+
 
 training_target=full_training["rawpoll_trump"]
-
 reg = LinearRegression(fit_intercept=True, normalize=False)
 reg.fit(full_training, training_target)
 print(reg.score(full_training, training_target))
-
+print(full_training)
 st.write(full_training)
 st.write('reg score = ', reg.score(full_training, training_target))
 
