@@ -80,11 +80,11 @@ print(reg.score(full_training, training_target))
 print(full_training)
 
 clf=LogisticRegression()
-clf.fit(full_training[["actual_trump"]], full_training[["pred_trump"]])
+clf.fit(full_training[["pred_trump"]], full_training[["correctResult"]])
 
 x1 = np.linspace(4.5, 8.5, 1000).reshape(-1, 1)
 y1=clf.predict_proba(x1)[:,1]
-
+print(clf.score(full_training[["pred_trump"]], full_training[["correctResult"]]))
 
 
 st.write(full_training)
