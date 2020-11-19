@@ -10,6 +10,16 @@ from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 #another_set1=pd.read_csv('2012-general-election-romney-vs-obama.csv')
 #another_set2=pd.read_csv('presidential_polls_2020.csv')
 
+def to_int(x):
+    
+    x = int(x)
+    return x
+
+def to_float(x):
+
+    x = float(x)
+    return x
+
 full_training=pd.read_csv('2016_sorted_polls.csv')
 full_training=full_training.drop(columns=["cycle"])
 full_training=full_training.drop(columns=["branch"])
@@ -41,7 +51,7 @@ full_training=full_training.drop(columns=["timestamp"])
 
 #print(full_training)
 
-
+#setting the predictions
 full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinton"], "pred_trump"] = 0.0
 full_training.loc[full_training["rawpoll_trump"] > full_training["rawpoll_clinton"], "pred_trump"] = 1.0
 full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinton"], "pred_clinton"] = 1.0
@@ -50,18 +60,36 @@ full_training.loc[full_training["rawpoll_trump"] == full_training["rawpoll_clint
 full_training.loc[full_training["rawpoll_trump"] == full_training["rawpoll_clinton"], "pred_trump"] = 0.0
 
 
+#full_training.rawpoll_trump = full_training.rawpoll_trump.apply(to_int)
+#full_training.actual_trump = full_training.actual_trump.apply(to_int)
+#full_training.rawpoll_clinton=full_training.rawpoll_clinton.apply(to_int)
+#full_training.actual_clinton=full_training.actual_clinton.apply(to_int)
+
+#creating another column for the correct result
+full_training.loc[(full_training["rawpoll_trump"] < full_training["rawpoll_clinton"]) & (full_training["actual_trump"] < full_training["actual_clinton"]), "correctResult"] = 1.0
+full_training.loc[(full_training["rawpoll_trump"] > full_training["rawpoll_clinton"]) & (full_training["actual_trump"] < full_training["actual_clinton"]), "correctResult"] = 0.0
+full_training.loc[(full_training["rawpoll_trump"] < full_training["rawpoll_clinton"]) & (full_training["actual_trump"] > full_training["actual_clinton"]), "correctResult"] = 0.0
+full_training.loc[(full_training["rawpoll_trump"] > full_training["rawpoll_clinton"]) & (full_training["actual_trump"] > full_training["actual_clinton"]), "correctResult"] = 1.0
+full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clinton"]) & (full_training["actual_trump"] > full_training["actual_clinton"]), "correctResult"] = 0.0
+full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clinton"]) & (full_training["actual_trump"] < full_training["actual_clinton"]), "correctResult"] = 0.0
+
 training_target=full_training["rawpoll_trump"]
 reg = LinearRegression(fit_intercept=True, normalize=False)
 reg.fit(full_training, training_target)
 print(reg.score(full_training, training_target))
 print(full_training)
-st.write(full_training)
-st.write('reg score = ', reg.score(full_training, training_target))
 
 clf=LogisticRegression()
 clf.fit(full_training[["actual_trump"]], full_training[["pred_trump"]])
 
 x1 = np.linspace(4.5, 8.5, 1000).reshape(-1, 1)
 y1=clf.predict_proba(x1)[:,1]
+
+
+
+st.write(full_training)
+st.write('reg score = ', reg.score(full_training, training_target))
+
+
 
 
