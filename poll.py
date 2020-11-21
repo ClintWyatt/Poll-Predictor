@@ -94,10 +94,10 @@ y1=clf.predict_proba(x1)[:,1]
 #=clf.predict(full_training[["rawpoll_trump"]]) # here we are adding a column for the training_target data set where 
 #clf.score(training_target[["rawpoll_trump"]],  training_target["correctResult"]) # getting the score
 fig, (ax1) = plt.subplots(1, figsize=(10, 10))#this shows the plot
-tp=full_training[(full_training["rawpoll_trump"]==1.0) & (full_training["pred_trump"]==1.0)]#true positive
-fp=full_training[(full_training["rawpoll_trump"]==0.0) & (full_training["pred_trump"]==1.0)]#false positive
-tn=full_training[(full_training["rawpoll_trump"]==0.0) & (full_training["pred_trump"]==0.0)]#true negative
-fn=full_training[(full_training["rawpoll_trump"]==1.0) & (full_training["pred_trump"]==0.0)]#false negative
+tp=full_training[(full_training["correctResult"]==1.0) & (full_training["pred_trump"]==1.0)]#true positive
+fp=full_training[(full_training["correctResult"]==0.0) & (full_training["pred_trump"]==1.0)]#false positive
+tn=full_training[(full_training["correctResult"]==0.0) & (full_training["pred_trump"]==0.0)]#true negative
+fn=full_training[(full_training["correctResult"]==1.0) & (full_training["pred_trump"]==0.0)]#false negative
 
 p = clf.predict_proba(full_training[["rawpoll_trump"]])
 ax1.plot([decision_point(clf)]*1000,np.linspace(0, 1, 1000),"--",color="red")#draws a line horizontally through the decision point
