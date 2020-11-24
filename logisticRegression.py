@@ -97,9 +97,9 @@ p = clf.predict_proba(full_training[["rawpoll_trump"]])
 ax1.plot([decision_point(clf)]*1000,np.linspace(0, 1, 1000),"--",color="red")#draws a line horizontally through the decision point
 
 ax1.plot(tp["rawpoll_trump"],tp["correctResult"],"+",c="green")
-ax1.plot(fp["rawpoll_trump"],fp["correctResult"],".",c="orange")
+ax1.plot(fp["rawpoll_trump"],fp["correctResult"],".",c="red")
 ax1.plot(tn["rawpoll_trump"],tn["correctResult"],".",c="green")
-ax1.plot(fn["rawpoll_trump"],fn["correctResult"],"+",c="orange")
+ax1.plot(fn["rawpoll_trump"],fn["correctResult"],"+",c="purple")
 
 ax1.set_title("rawpoll_trump as h(correct result)",fontsize=20)
 ax1.scatter(full_training['rawpoll_trump'], p[:,1], color = 'black')#p[:,1] means only have the second index of the 2d array
