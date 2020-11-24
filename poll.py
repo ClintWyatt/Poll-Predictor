@@ -46,7 +46,7 @@ st.subheader("scatter matrix of dataset features")
 scatter_matrix = alt.Chart(full_training).mark_circle().encode(
     alt.X(alt.repeat("column"), type='quantitative'),
     alt.Y(alt.repeat("row"), type='quantitative'),
-    color='grade',size='samplesize',opacity=alt.value(0.4)
+    color='state',size='samplesize',opacity=alt.value(0.4)
 ).properties(
     width=150,
     height=150
@@ -90,7 +90,7 @@ full_training=full_training.drop(columns=["timestamp"])
 
 print(full_training)
 
-#setting the predictions
+#setting the columns for predictions
 full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinton"], "pred_trump"] = 0.0
 full_training.loc[full_training["rawpoll_trump"] > full_training["rawpoll_clinton"], "pred_trump"] = 1.0
 full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinton"], "pred_clinton"] = 1.0
@@ -104,7 +104,7 @@ full_training.loc[full_training["rawpoll_trump"] == full_training["rawpoll_clint
 #full_training.rawpoll_clinton=full_training.rawpoll_clinton.apply(to_int)
 #full_training.actual_clinton=full_training.actual_clinton.apply(to_int)
 
-#creating another column for the correct result
+#creating another column for the correct result for correct results
 full_training.loc[(full_training["rawpoll_trump"] < full_training["rawpoll_clinton"]) & (full_training["actual_trump"] < full_training["actual_clinton"]), "correctResult"] = 1.0
 full_training.loc[(full_training["rawpoll_trump"] > full_training["rawpoll_clinton"]) & (full_training["actual_trump"] < full_training["actual_clinton"]), "correctResult"] = 0.0
 full_training.loc[(full_training["rawpoll_trump"] < full_training["rawpoll_clinton"]) & (full_training["actual_trump"] > full_training["actual_clinton"]), "correctResult"] = 0.0
@@ -150,15 +150,17 @@ fn=full_training[(full_training["correctResult"]==1.0) & (full_training["pred_tr
 p = clf.predict_proba(full_training[["rawpoll_trump"]])
 ax1.plot([decision_point(clf)]*1000,np.linspace(0, 1, 1000),"--",color="red")#draws a line horizontally through the decision point
 
-ax1.plot(tp["rawpoll_trump"],tp["correctResult"],"+",c="green")
-ax1.plot(fp["rawpoll_trump"],fp["correctResult"],".",c="orange")
-ax1.plot(tn["rawpoll_trump"],tn["correctResult"],".",c="green")
-ax1.plot(fn["rawpoll_trump"],fn["correctResult"],"+",c="orange")
+#plot and label the feature samples corresponding to model outcomes
+ax1.plot(tp["rawpoll_trump"],tp["correctResult"],"+",c="green", label="True Positives")
+ax1.plot(fp["rawpoll_trump"],fp["correctResult"],".",c="orange", label="False Positives")
+ax1.plot(tn["rawpoll_trump"],tn["correctResult"],".",c="green", label="True Negatives")
+ax1.plot(fn["rawpoll_trump"],fn["correctResult"],"+",c="orange", label="False Negatives")
 
 ax1.set_title("rawpoll_trump as h(correct result)",fontsize=20)
 ax1.scatter(full_training['rawpoll_trump'], p[:,1], color = 'black')#p[:,1] means only have the second index of the 2d array
 ax1.set_xlabel('rawpoll_trump',fontsize=16)
 ax1.set_ylabel('correctResult',fontsize=16)
+ax1.legend(loc="upper right") #legend to diplay the meaning of the pointer color and styles
 ax1.plot(x1, y1, color='green') #plots what x1 and y1 are set equal to
 ax1.grid(True)#shows the lines through the x and y values representing the axis
 #plt.show()
@@ -179,13 +181,15 @@ score_chart = alt.Chart(full_training.reset_index())
 ###############################################
 ## chart output using the altair library
 # pretty intuitive and quick to use
-st.altair_chart(score_chart.mark_point()
-.encode(alt.X('index'), alt.Y("correctResult",
-scale=alt.Scale(domain =[-1,2], clamp = True)),
-color = 'pred_trump',
-opacity=alt.value(0.5))
-.properties(width = 750,height = 250,)
-.interactive())
+
+#st.altair_chart(score_chart.mark_point()
+#.encode(alt.X('index'), alt.Y("correctResult",
+#scale=alt.Scale(domain =[-1,2], clamp = True)),
+#color = 'pred_trump',
+#opacity=alt.value(0.5))
+#.properties(width = 750,height = 250,)
+#.interactive())
+
 ################################################
 
 # output some scores to streamlit
