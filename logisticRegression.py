@@ -7,52 +7,21 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 import matplotlib.pyplot as plt
+import aux_functions as aux
 
 #another_set1=pd.read_csv('2012-general-election-romney-vs-obama.csv')
 #another_set2=pd.read_csv('presidential_polls_2020.csv')
 
-def decision_point(clf):
-    coef = clf.coef_
-    intercept = clf.intercept_
-    return (-intercept[0])/coef[0,0]
-
-def to_int(x):
-    
-    x = int(x)
-    return x
-
-def to_float(x):
-
-    x = float(x)
-    return x
-
 full_training=pd.read_csv('pollsSorted.csv')
 full_training=full_training.iloc[7337: 7606] #getting all results for 1 poll. Change as needed
-full_training=full_training.drop(columns=["cycle"])
-full_training=full_training.drop(columns=["branch"])
-full_training=full_training.drop(columns=["type"])
-full_training=full_training.drop(columns=["matchup"])
-full_training=full_training.drop(columns=["forecastdate"])
-full_training=full_training.drop(columns=["state"])
-full_training=full_training.drop(columns=["startdate"])
-full_training=full_training.drop(columns=["enddate"])
-full_training=full_training.drop(columns=["pollster"])
-full_training=full_training.drop(columns=["grade"])#could convert this to floats later on
-full_training=full_training.drop(columns=["poll_wt"])#need a method for this column
-full_training=full_training.drop(columns=["population"])
-full_training=full_training.drop(columns=["samplesize"])
-full_training=full_training.drop(columns=["rawpoll_johnson"])
-full_training=full_training.drop(columns=["rawpoll_mcmullin"])
-full_training=full_training.drop(columns=["adjpoll_clinton"])
-full_training=full_training.drop(columns=["adjpoll_trump"])
-full_training=full_training.drop(columns=["adjpoll_johnson"])
-full_training=full_training.drop(columns=["adjpoll_mcmullin"])
-full_training=full_training.drop(columns=["multiversions"])
-full_training=full_training.drop(columns=["url"])
-full_training=full_training.drop(columns=["poll_id"])
-full_training=full_training.drop(columns=["question_id"])
-full_training=full_training.drop(columns=["createddate"])
-full_training=full_training.drop(columns=["timestamp"])
+
+training_columns = ["cycle","branch","type","matchup","forecastdate","state","startdate",
+"enddate","pollster","grade","poll_wt","population","samplesize","rawpoll_johnson",
+"rawpoll_mcmullin","adjpoll_clinton","adjpoll_trump","adjpoll_johnson","adjpoll_mcmullin",
+"multiversions","url","poll_id","question_id","createddate","timestamp"]
+
+full_training = aux.strip_columns(full_training,training_columns)
+
 #full_training=full_training.drop(columns=["pred_trump"])
 #full_training=full_training.drop(columns=["pred_clinton"])
 
@@ -81,8 +50,6 @@ full_training.loc[(full_training["rawpoll_trump"] > full_training["rawpoll_clint
 full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clinton"]) & (full_training["actual_trump"] > full_training["actual_clinton"]), "correctResult"] = 0.0
 full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clinton"]) & (full_training["actual_trump"] < full_training["actual_clinton"]), "correctResult"] = 0.0
 
-
-
 var="pred_clinton" #change to pred_clinton/pred_trump if needed
 rawPoll="rawpoll_clinton" #change to rawpoll_clinton/rawpoll_trump if needed
 print(full_training)
@@ -100,7 +67,7 @@ tn=full_training[(full_training["correctResult"]==0.0) & (full_training[var]==0.
 fn=full_training[(full_training["correctResult"]==1.0) & (full_training[var]==0.0)]#false negative
 
 p = clf.predict_proba(full_training[[rawPoll]])
-ax1.plot([decision_point(clf)]*1000,np.linspace(0, 1, 1000),"--",color="red")#draws a line horizontally through the decision point
+ax1.plot([aux.decision_point(clf)]*1000,np.linspace(0, 1, 1000),"--",color="red")#draws a line horizontally through the decision point
 
 ax1.plot(tp[rawPoll],tp["correctResult"],"+",c="green")
 ax1.plot(fp[rawPoll],fp["correctResult"],".",c="red")
