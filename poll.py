@@ -1,33 +1,25 @@
-import pandas as pd
-import numpy as np
-import streamlit as st
+from altair.vegalite.v4.schema.channels import Tooltip
+import pandas as pd # dataframe manipulation
+import numpy as np # numbers and science
+import streamlit as st # cool app development
 from sklearn.linear_model import LinearRegression,LogisticRegression,Perceptron
 import math
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 import matplotlib.pyplot as plt
-import altair as alt
+import seaborn as sns # for heatmaps
+import altair as alt # graphs compatible with streamlit
+import aux_functions as aux # local library to shorten the amount of code shown
 
 #another_set1=pd.read_csv('2012-general-election-romney-vs-obama.csv')
 #another_set2=pd.read_csv('presidential_polls_2020.csv')
-def decision_point(clf):
-    coef = clf.coef_
-    intercept = clf.intercept_
-    return (-intercept[0])/coef[0,0]
 
-def to_int(x):
-    
-    x = int(x)
-    return x
-
-def to_float(x):
-
-    x = float(x)
-    return x
+#the functions put here have been moved to the aux_functions file
 
 # get dataset
 full_training=pd.read_csv('2016_sorted_polls.csv')
+data_vis=pd.read_csv('2016_sorted_polls.csv')
 
 ####################################################
 ### streamlit wrapper begins here###
@@ -59,37 +51,6 @@ if st.checkbox('View Scatter-matrix'):
     st.altair_chart(scatter_matrix)
 ### End Intro
 #####################################################
-
-full_training=full_training.drop(columns=["cycle"])
-full_training=full_training.drop(columns=["branch"])
-full_training=full_training.drop(columns=["type"])
-full_training=full_training.drop(columns=["matchup"])
-full_training=full_training.drop(columns=["forecastdate"])
-full_training=full_training.drop(columns=["state"])
-full_training=full_training.drop(columns=["startdate"])
-full_training=full_training.drop(columns=["enddate"])
-full_training=full_training.drop(columns=["pollster"])
-full_training=full_training.drop(columns=["grade"])#could convert this to floats later on
-full_training=full_training.drop(columns=["poll_wt"])#need a method for this column
-full_training=full_training.drop(columns=["population"])
-full_training=full_training.drop(columns=["samplesize"])
-full_training=full_training.drop(columns=["rawpoll_johnson"])
-full_training=full_training.drop(columns=["rawpoll_mcmullin"])
-full_training=full_training.drop(columns=["adjpoll_clinton"])
-full_training=full_training.drop(columns=["adjpoll_trump"])
-full_training=full_training.drop(columns=["adjpoll_johnson"])
-full_training=full_training.drop(columns=["adjpoll_mcmullin"])
-full_training=full_training.drop(columns=["multiversions"])
-full_training=full_training.drop(columns=["url"])
-full_training=full_training.drop(columns=["poll_id"])
-full_training=full_training.drop(columns=["question_id"])
-full_training=full_training.drop(columns=["createddate"])
-full_training=full_training.drop(columns=["timestamp"])
-#full_training=full_training.drop(columns=["pred_trump"])
-#full_training=full_training.drop(columns=["pred_clinton"])
-
-print(full_training)
-
 #setting the columns for predictions
 full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinton"], "pred_trump"] = 0.0
 full_training.loc[full_training["rawpoll_trump"] > full_training["rawpoll_clinton"], "pred_trump"] = 1.0
@@ -97,7 +58,6 @@ full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinto
 full_training.loc[full_training["rawpoll_trump"] > full_training["rawpoll_clinton"], "pred_clinton"] = 0.0
 full_training.loc[full_training["rawpoll_trump"] == full_training["rawpoll_clinton"], "pred_clinton"] = 0.0
 full_training.loc[full_training["rawpoll_trump"] == full_training["rawpoll_clinton"], "pred_trump"] = 0.0
-
 
 #full_training.rawpoll_trump = full_training.rawpoll_trump.apply(to_int)
 #full_training.actual_trump = full_training.actual_trump.apply(to_int)
@@ -112,7 +72,47 @@ full_training.loc[(full_training["rawpoll_trump"] > full_training["rawpoll_clint
 full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clinton"]) & (full_training["actual_trump"] > full_training["actual_clinton"]), "correctResult"] = 0.0
 full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clinton"]) & (full_training["actual_trump"] < full_training["actual_clinton"]), "correctResult"] = 0.0
 
+#trimmed version to keep more numerical and categorical data
+training_columns = ["cycle","branch","type","grade","rawpoll_johnson",
+"adjpoll_johnson","rawpoll_mcmullin","adjpoll_mcmullin","matchup",
+"forecastdate","startdate","enddate","pollster","population", "multiversions",
+"url","poll_id", "question_id","timestamp"]
+
+data_vis = aux.strip_columns(data_vis,training_columns)
+#data_vis["state"] = pd.Categorical(data_vis['state'],data_vis['state'])
+#data_vis['state'] = data_vis['state'].cat.codes
+
+#full_training=full_training.drop(columns=["pred_trump"])
+#full_training=full_training.drop(columns=["pred_clinton"])
+data_vis = data_vis.dropna(axis=1)
+data_vis = data_vis.groupby(['state'], sort=True).mean()
+
+st.subheader("Poll data grouped by state")
+
+print(data_vis)
+st.write(data_vis)
+
+
+date_probability = alt.Chart(data_vis.reset_index())
+
+#currently not great
+st.altair_chart(date_probability.mark_circle().encode(
+    x ='rawpoll_trump',
+    y ='rawpoll_clinton',
+    #x2='actual_trump',
+    #y2='actual_linton',
+    color ='state',
+    tooltip=['state','actual_trump','actual_clinton'])
+.properties(width = 750,height = 500)
+.interactive())
 ##########################################
+
+training_columns = ["cycle","branch","type","matchup","forecastdate","state","startdate",
+"enddate","pollster","grade","poll_wt","population","samplesize","rawpoll_johnson",
+"rawpoll_mcmullin","adjpoll_clinton","adjpoll_trump","adjpoll_johnson","adjpoll_mcmullin",
+"multiversions","url","poll_id","question_id","createddate","timestamp"]
+
+full_training = aux.strip_columns(full_training,training_columns)
 ## section that shows some of the code used for the models
 # any code put into the echo is both printed to streamlit and executed as code
 st.subheader("regression models")
@@ -148,7 +148,7 @@ tn=full_training[(full_training["correctResult"]==0.0) & (full_training["pred_tr
 fn=full_training[(full_training["correctResult"]==1.0) & (full_training["pred_trump"]==0.0)]#false negative
 
 p = clf.predict_proba(full_training[["rawpoll_trump"]])
-ax1.plot([decision_point(clf)]*1000,np.linspace(0, 1, 1000),"--",color="red")#draws a line horizontally through the decision point
+ax1.plot([aux.decision_point(clf)]*1000,np.linspace(0, 1, 1000),"--",color="red")#draws a line horizontally through the decision point
 
 #plot and label the feature samples corresponding to model outcomes
 ax1.plot(tp["rawpoll_trump"],tp["correctResult"],"+",c="green", label="True Positives")
