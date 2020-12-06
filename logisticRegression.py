@@ -26,7 +26,8 @@ def to_float(x):
     x = float(x)
     return x
 
-full_training=pd.read_csv('2016_sorted_polls.csv')
+full_training=pd.read_csv('pollsSorted.csv')
+full_training=full_training.iloc[7337: 7606] #getting all results for 1 poll
 full_training=full_training.drop(columns=["cycle"])
 full_training=full_training.drop(columns=["branch"])
 full_training=full_training.drop(columns=["type"])
@@ -57,6 +58,7 @@ full_training=full_training.drop(columns=["timestamp"])
 
 #print(full_training)
 
+
 #setting the predictions
 full_training.loc[full_training["rawpoll_trump"] < full_training["rawpoll_clinton"], "pred_trump"] = 0.0
 full_training.loc[full_training["rawpoll_trump"] > full_training["rawpoll_clinton"], "pred_trump"] = 1.0
@@ -80,6 +82,9 @@ full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clin
 full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clinton"]) & (full_training["actual_trump"] < full_training["actual_clinton"]), "correctResult"] = 0.0
 
 
+
+
+print(full_training)
 #below is the graph output for the trump logistic regression results 
 clf=LogisticRegression()
 clf.fit(full_training[["rawpoll_trump"]], full_training[["correctResult"]])
