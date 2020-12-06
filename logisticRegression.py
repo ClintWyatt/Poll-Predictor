@@ -27,7 +27,7 @@ def to_float(x):
     return x
 
 full_training=pd.read_csv('pollsSorted.csv')
-full_training=full_training.iloc[7337: 7606] #getting all results for 1 poll
+full_training=full_training.iloc[7337: 7606] #getting all results for 1 poll. Change as needed
 full_training=full_training.drop(columns=["cycle"])
 full_training=full_training.drop(columns=["branch"])
 full_training=full_training.drop(columns=["type"])
@@ -83,38 +83,39 @@ full_training.loc[(full_training["rawpoll_trump"] == full_training["rawpoll_clin
 
 
 
-
+var="pred_clinton" #change to pred_clinton/pred_trump if needed
+rawPoll="rawpoll_clinton" #change to rawpoll_clinton/rawpoll_trump if needed
 print(full_training)
 #below is the graph output for the trump logistic regression results 
 clf=LogisticRegression()
-clf.fit(full_training[["rawpoll_trump"]], full_training[["correctResult"]])
+clf.fit(full_training[[rawPoll]], full_training[["correctResult"]])
 x1 = np.linspace(4.5, 8.5, 1000).reshape(-1, 1)
 y1=clf.predict_proba(x1)[:,1]
-#=clf.predict(full_training[["rawpoll_trump"]]) # here we are adding a column for the training_target data set where 
-#clf.score(training_target[["rawpoll_trump"]],  training_target["correctResult"]) # getting the score
+#=clf.predict(full_training[["rawPoll"]]) # here we are adding a column for the training_target data set where 
+#clf.score(training_target[["rawPoll"]],  training_target["correctResult"]) # getting the score
 fig, (ax1) = plt.subplots(1, figsize=(10, 10))#this shows the plot
-tp=full_training[(full_training["correctResult"]==1.0) & (full_training["pred_trump"]==1.0)]#true positive
-fp=full_training[(full_training["correctResult"]==0.0) & (full_training["pred_trump"]==1.0)]#false positive
-tn=full_training[(full_training["correctResult"]==0.0) & (full_training["pred_trump"]==0.0)]#true negative
-fn=full_training[(full_training["correctResult"]==1.0) & (full_training["pred_trump"]==0.0)]#false negative
+tp=full_training[(full_training["correctResult"]==1.0) & (full_training[var]==1.0)]#true positive
+fp=full_training[(full_training["correctResult"]==0.0) & (full_training[var]==1.0)]#false positive
+tn=full_training[(full_training["correctResult"]==0.0) & (full_training[var]==0.0)]#true negative
+fn=full_training[(full_training["correctResult"]==1.0) & (full_training[var]==0.0)]#false negative
 
-p = clf.predict_proba(full_training[["rawpoll_trump"]])
+p = clf.predict_proba(full_training[[rawPoll]])
 ax1.plot([decision_point(clf)]*1000,np.linspace(0, 1, 1000),"--",color="red")#draws a line horizontally through the decision point
 
-ax1.plot(tp["rawpoll_trump"],tp["correctResult"],"+",c="green")
-ax1.plot(fp["rawpoll_trump"],fp["correctResult"],".",c="red")
-ax1.plot(tn["rawpoll_trump"],tn["correctResult"],".",c="green")
-ax1.plot(fn["rawpoll_trump"],fn["correctResult"],"+",c="purple")
+ax1.plot(tp[rawPoll],tp["correctResult"],"+",c="green")
+ax1.plot(fp[rawPoll],fp["correctResult"],".",c="red")
+ax1.plot(tn[rawPoll],tn["correctResult"],".",c="green")
+ax1.plot(fn[rawPoll],fn["correctResult"],"+",c="purple")
 
 ax1.set_title("rawpoll_trump as h(correct result)",fontsize=20)
-ax1.scatter(full_training['rawpoll_trump'], p[:,1], color = 'black')#p[:,1] means only have the second index of the 2d array
-ax1.set_xlabel('rawpoll_trump',fontsize=16)
+ax1.scatter(full_training[rawPoll], p[:,1], color = 'black')#p[:,1] means only have the second index of the 2d array
+ax1.set_xlabel('rawPoll',fontsize=16)
 ax1.set_ylabel('correctResult',fontsize=16)
 ax1.plot(x1, y1, color='green') #plots what x1 and y1 are set equal to
 ax1.grid(True)#shows the lines through the x and y values representing the axis
 plt.show()
 
-print(clf.score(full_training[["rawpoll_trump"]], full_training[["correctResult"]]))
+print(clf.score(full_training[[rawPoll]], full_training[["correctResult"]]))
 
 
 st.write(full_training)
