@@ -1,0 +1,16 @@
+Accuracy of each poll for Donald Trump:
+ABC: 100%
+American Research Group: 100%
+CBS/New York Times: 68.96%
+CNN: 66.197%
+CVOTER: 92.02 % (Had a fairly large sample size)
+Dan Jones & Associates: 86.36%
+Emmerson College: 63.35% (Had a fairly large sample size)
+Fox News: 84.42%
+Google Consumer Surveys: 78.1% (About 15% of all the polling data)
+IBD/TIPP: 67.8%
+IPSOS: 85.96% (Represented about 15% of all the polling data)
+Marist College: 56.25%
+Monmouth University: 69.16%
+Morning Consult: 91.30%
+Rasmussen: 61.34%
