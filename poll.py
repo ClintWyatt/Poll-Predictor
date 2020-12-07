@@ -133,4 +133,4 @@ local_logReg.run_logReg()
 # output some scores to streamlit
 # st.write('reg score = ', reg.score(full_training, training_target))
 
-local_linReg.run_linReg()
+#local_linReg.run_linReg()
